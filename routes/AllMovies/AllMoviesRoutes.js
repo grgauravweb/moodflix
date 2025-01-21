@@ -6,12 +6,14 @@ const router = express.Router();
 router.post('/', async (req, res) => {
   try {
     const movieData = { ...req.body };
+    
     if (!movieData.tmdbId) delete movieData.tmdbId; // Remove tmdbId if it's empty
 
     const movie = new Movie(movieData);
     await movie.save();
     res.status(201).json(movie);
   } catch (error) {
+    console.log("Error: ", error.message)
     res.status(400).json({ message: error.message });
   }
 });
