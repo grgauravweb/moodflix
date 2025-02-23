@@ -16,6 +16,7 @@ const movieSchema = new mongoose.Schema({
   runtime: { type: String },
   freePaid: { type: String, enum: ['Free', 'Paid'], default: 'Paid' },
   trailerUrl: { type: String },
+  movieUrl: { type: String },
   videoQuality: { type: String, default: '4K' },
   thumbnail: { type: String },
   poster: { type: String },

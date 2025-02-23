@@ -108,12 +108,12 @@ router.get("/by-genre/:genreId", async (req, res) => {
 });
 
 const s3 = new S3Client({
-  region: "blr1", // Example: "nyc3"
-  endpoint: "https://blr1.digitaloceanspaces.com", // Example: "https://nyc3.digitaloceanspaces.com"
+  region: process.env.DO_SPACES_REGION || "blr1",
+  endpoint: process.env.DO_SPACES_URL || "https://blr1.digitaloceanspaces.com",
   forcePathStyle: false,
   credentials: {
-    accessKeyId: "DO002JVPT7YX78TP7G7C",
-    secretAccessKey: "FDdbM3P5Fq2b6A/uz8dYO7xs5f75umSMEcFzOt53g7o",
+    accessKeyId: process.env.DO_SPACES_KEY || "DO002JVPT7YX78TP7G7C",
+    secretAccessKey: process.env.DO_SPACES_SECRET || "FDdbM3P5Fq2b6A/uz8dYO7xs5f75umSMEcFzOt53g7o",
   },
 });
 
@@ -129,16 +129,19 @@ router.post("/upload", upload.single("video"), async (req, res) => {
 
     const file = req.file;
     const bucketName = process.env.DO_SPACES_BUCKET;
+    const cdnUrl = process.env.DO_SPACES_CDN_URL; // ✅ Use CDN URL
 
     if (!bucketName) {
       return res.status(500).json({ error: "Bucket name is missing in .env" });
     }
 
-    console.log("Uploading to Bucket:", bucketName);
+    // console.log("Uploading to Bucket:", bucketName);
+
+    const fileName = `videos/${Date.now()}-${file.originalname}`;
 
     const params = {
-      Bucket: bucketName, // ✅ Ensure this is set correctly
-      Key: `videos/${Date.now()}-${file.originalname}`,
+      Bucket: bucketName,
+      Key: fileName,
       Body: file.buffer,
       ACL: "public-read",
       ContentType: file.mimetype,
@@ -150,13 +153,13 @@ router.post("/upload", upload.single("video"), async (req, res) => {
     res.json({
       success: true,
       message: "Video uploaded successfully",
-      url: `${process.env.DO_SPACES_ENDPOINT}/${bucketName}/videos/${file.originalname}`,
+      url: `${cdnUrl}/${fileName}`, // ✅ Use CDN URL instead of Spaces endpoint
     });
   } catch (error) {
     console.error("Upload error:", error);
     res.status(500).json({ error: "Failed to upload video" });
   }
-});
+})
 
 
 module.exports = router;
