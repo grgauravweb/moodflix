@@ -3,11 +3,11 @@ const mongoose = require('mongoose');
 const movieSchema = new mongoose.Schema({
   tmdbId: { type: String },
   title: { type: String, required: true },
-  slug: { type: String, required: true }, // Removed `unique: true`
+  slug: [{ type: mongoose.Schema.Types.ObjectId, ref: "Genre" }], // Removed `unique: true`
   description: { type: String },
-  actors: { type: String },
-  directors: { type: String },
-  writers: { type: String },
+  actors: [{ type: mongoose.Schema.Types.ObjectId, ref: "Star" }],
+  directors: [{ type: mongoose.Schema.Types.ObjectId, ref: "Star" }],
+  writers: [{ type: mongoose.Schema.Types.ObjectId, ref: "Star" }],
   imdbRating: { type: String },
   releaseDate: { type: Date },
   countries: { type: String, default: 'India' },
