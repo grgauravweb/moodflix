@@ -150,10 +150,17 @@ router.post(
   ]),
   async (req, res) => {
     try {
+
       const { title, description, releaseDate, tmdbId, slug, actors, directors, writers, imdbRating, countries, genres, runtime, freePaid, trailerUrl, videoQuality, sendNewsletter, sendPushNotification, publish, enableDownload } = req.body;
       if (!title || !description) {
         return res.status(400).json({ error: "Title and description are required" });
       }
+
+      const genresData = genres ? genres.split(",").map((id) => id.trim()) : [];
+      const actorsData = actors ? actors.split(",").map((id) => id.trim()) : [];
+      const directorsData = directors ? directors.split(",").map((id) => id.trim()) : [];
+      const writersData = writers ? writers.split(",").map((id) => id.trim()) : [];
+
 
       // Upload files to DigitalOcean
       const videoUrl = await uploadFileToSpaces(req.files.video?.[0], "movies/videos");
@@ -173,12 +180,12 @@ router.post(
         movieUrl: videoUrl,
         thumbnail: thumbnailUrl,
         poster: posterUrl,
-        actors,
-        directors,
-        writers,
+        actors: actorsData,
+        directors: directorsData,
+        writers: writersData,
         imdbRating,
         countries,
-        genres,
+        genres: genresData,
         runtime,
         freePaid,
         trailerUrl,
