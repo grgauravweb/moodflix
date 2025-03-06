@@ -1,17 +1,40 @@
 const mongoose = require('mongoose');
 
+// 🆕 Episode Schema
+const EpisodeSchema = new mongoose.Schema({
+  title: { type: String, required: true },
+  episodeNumber: { type: Number, required: true },
+  seasonNumber: { type: Number, required: true },
+  description: { type: String },
+  video: { type: String, required: true },
+  thumbnail: { type: String },
+  duration: { type: String },
+  releaseDate: { type: Date },
+  freePaid: { type: String, enum: ['Free', 'Paid'], default: 'Paid' },
+  videoQuality: { type: String, enum: ['4K', '1080p', '720p'], default: '4K' },
+  views: { type: Number, default: 0 },
+  likes: { type: Number, default: 0 },
+  comments: [
+    {
+      user: { type: String },
+      comment: { type: String },
+      date: { type: Date, default: Date.now }
+    }
+  ]
+}, { timestamps: true });
+
 const TvSeriesSchema = new mongoose.Schema({
   tmdbId: { type: String },
   title: { type: String, required: true },
-  slug: { type: String, required: true }, // Removed `unique: true`
+  slug: [{ type: mongoose.Schema.Types.ObjectId, ref: "Genre" }], // Removed `unique: true`
   description: { type: String },
-  actors: { type: String },
-  directors: { type: String },
-  writers: { type: String },
+  actors: [{ type: mongoose.Schema.Types.ObjectId, ref: "Star" }],
+  directors: [{ type: mongoose.Schema.Types.ObjectId, ref: "Star" }],
+  writers: [{ type: mongoose.Schema.Types.ObjectId, ref: "Star" }],
   imdbRating: { type: String },
   releaseDate: { type: Date },
   countries: { type: String, default: 'India' },
-  genres: { type: String },
+  genres: [{ type: mongoose.Schema.Types.ObjectId, ref: "Genre" }],
   runtime: { type: String },
   freePaid: { type: String, enum: ['Free', 'Paid'], default: 'Paid' },
   trailerUrl: { type: String },
@@ -23,6 +46,9 @@ const TvSeriesSchema = new mongoose.Schema({
   sendPushNotification: { type: Boolean, default: false },
   publish: { type: Boolean, default: false },
   enableDownload: { type: Boolean, default: false },
+  episodes: [EpisodeSchema],
+  views: { type: Number, default: 0 },
+  likes: { type: Number, default: 0 }
 }, { timestamps: true });
 
 const TvSeries = mongoose.model('TvSeries', TvSeriesSchema);
