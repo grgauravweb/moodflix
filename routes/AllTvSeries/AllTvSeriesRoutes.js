@@ -260,6 +260,60 @@ router.post(
   }
 );
 
+router.post(
+  "/:seriesId/add-episode",
+  upload.fields([
+    { name: "thumbnail", maxCount: 1 },
+    { name: "video", maxCount: 1 },
+  ]),
+  async (req, res) => {
+    try {
+      const { seriesId } = req.params;
+
+      const {
+        title,
+        episodeNumber,
+        seasonNumber,
+        description,
+        releaseDate,
+        freePaid,
+        videoQuality,
+      } = req.body;
+
+      if (!title || !episodeNumber || !seasonNumber) {
+        return res.status(400).json({ error: "Title, episodeNumber, and seasonNumber are required" });
+      }
+      // Find the TV series
+      const tvSeries = await TvSeries.findById(seriesId);
+      if (!tvSeries) {
+        return res.status(404).json({ error: "TV Series not found" });
+      }
+
+      // Upload poster and thumbnail to DigitalOcean Spaces
+      const videoUrl = await uploadFileToSpaces(req.files.video[0], "series/videos");
+      const thumbnailUrl = await uploadFileToSpaces(req.files.thumbnail[0], "series/thumbnails");
+
+
+      const newEpisode = {
+        title,
+        episodeNumber,
+        seasonNumber,
+        description,
+        video: videoUrl,
+        thumbnail: thumbnailUrl,
+      };
+
+      tvSeries.episodes.push(newEpisode);
+      await tvSeries.save();
+
+      res.status(201).json({  success: true, message: "Episode added successfully", newEpisode });
+    } catch (error) {
+      console.error("Error adding episode:", error);
+      res.status(500).json({ error: "Failed to add episode" });
+    }
+  }
+);
+
 // Get all TV Series
 router.get('/', async (req, res) => {
   try {
