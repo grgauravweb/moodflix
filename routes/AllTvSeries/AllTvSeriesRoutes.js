@@ -301,6 +301,9 @@ router.post(
         description,
         video: videoUrl,
         thumbnail: thumbnailUrl,
+        releaseDate,
+        freePaid,
+        videoQuality,
       };
 
       tvSeries.episodes.push(newEpisode);
