@@ -317,6 +317,48 @@ router.post(
   }
 );
 
+// ✅ GET all episodes for a specific TV series
+router.get("/:seriesId/episodes", async (req, res) => {
+  try {
+    const { seriesId } = req.params;
+    const { season, freePaid, page = 1, limit = 10 } = req.query; 
+
+    // 🔍 Find the TV Series
+    const series = await TvSeries.findById(seriesId);
+
+    if (!series) {
+      return res.status(404).json({ success: false, message: "TV series not found" });
+    }
+
+    // 🔎 Filter episodes based on query params
+    let episodes = series.episodes;
+
+    if (season) {
+      episodes = episodes.filter(ep => ep.seasonNumber === Number(season));
+    }
+
+    if (freePaid) {
+      episodes = episodes.filter(ep => ep.freePaid === freePaid);
+    }
+
+    // ⏳ Pagination
+    const startIndex = (page - 1) * limit;
+    const paginatedEpisodes = episodes.slice(startIndex, startIndex + Number(limit));
+
+    res.status(200).json({
+      success: true,
+      totalEpisodes: episodes.length,
+      page: Number(page),
+      limit: Number(limit),
+      episodes: paginatedEpisodes,
+    });
+
+  } catch (error) {
+    console.error("Error fetching episodes:", error);
+    res.status(500).json({ success: false, message: "Internal Server Error" });
+  }
+});
+
 // Get all TV Series
 router.get('/', async (req, res) => {
   try {
