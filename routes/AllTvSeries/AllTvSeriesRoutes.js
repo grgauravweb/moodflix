@@ -278,6 +278,7 @@ router.post(
         releaseDate,
         freePaid,
         videoQuality,
+        duration
       } = req.body;
 
       if (!title || !episodeNumber || !seasonNumber) {
@@ -304,6 +305,7 @@ router.post(
         releaseDate,
         freePaid,
         videoQuality,
+        duration
       };
 
       tvSeries.episodes.push(newEpisode);
