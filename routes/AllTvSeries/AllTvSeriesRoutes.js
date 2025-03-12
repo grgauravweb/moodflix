@@ -261,7 +261,7 @@ router.post(
   }
 );
 
-//  ✅ Add episodes for a specific TV series
+// ✅ Add episodes for a specific TV series
 router.post(
   "/:seriesId/add-episode",
   upload.fields([
@@ -313,7 +313,7 @@ router.post(
       tvSeries.episodes.push(newEpisode);
       await tvSeries.save();
 
-      res.status(201).json({  success: true, message: "Episode added successfully", newEpisode });
+      res.status(201).json({ success: true, message: "Episode added successfully", newEpisode });
     } catch (error) {
       console.error("Error adding episode:", error);
       res.status(500).json({ error: "Failed to add episode" });
@@ -325,7 +325,7 @@ router.post(
 router.get("/:seriesId/episodes", async (req, res) => {
   try {
     const { seriesId } = req.params;
-    const { season, freePaid, page = 1, limit = 10 } = req.query; 
+    const { season, freePaid, page = 1, limit = 10 } = req.query;
 
     // 🔍 Find the TV Series
     const series = await TvSeries.findById(seriesId);
@@ -387,17 +387,90 @@ router.get('/:id', async (req, res) => {
 });
 
 // Update a TV Series
-router.put('/:id', async (req, res) => {
-  try {
-    const tvSeries = await TvSeries.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    if (!tvSeries) {
-      return res.status(404).json({ message: 'TV Series not found' });
+router.put('/:id',
+  upload.fields([
+    { name: "poster", maxCount: 1 },
+    { name: "thumbnail", maxCount: 1 }
+  ]),
+  async (req, res) => {
+    try {
+      const { id } = req.params;
+      const tvSeries = await TvSeries.findById(id);
+      if (!tvSeries) {
+        return res.status(404).json({ error: "TV Series not found" });
+      }
+      const {
+        title,
+        description,
+        releaseDate,
+        tmdbId,
+        slug,
+        actors,
+        directors,
+        writers,
+        imdbRating,
+        countries,
+        genres,
+        seasons,
+        runtime,
+        freePaid,
+        trailerUrl,
+        videoQuality,
+        sendNewsletter,
+        sendPushNotification,
+        publish,
+        enableDownload,
+      } = req.body;
+
+      // Split string values into arrays if provided
+      const genresData = genres ? genres.split(",").map((id) => id.trim()) : tvSeries.genres;
+      const actorsData = actors ? actors.split(",").map((id) => id.trim()) : tvSeries.actors;
+      const directorsData = directors ? directors.split(",").map((id) => id.trim()) : tvSeries.directors;
+      const writersData = writers ? writers.split(",").map((id) => id.trim()) : tvSeries.writers;
+
+      // Upload new poster and thumbnail if provided
+      let posterUrl = tvSeries.poster;
+      let thumbnailUrl = tvSeries.thumbnail;
+
+      if (req.files.poster) {
+        posterUrl = await uploadFileToSpaces(req.files.poster[0], "series/posters");
+      }
+      if (req.files.thumbnail) {
+        thumbnailUrl = await uploadFileToSpaces(req.files.thumbnail[0], "series/thumbnails");
+      }
+
+      // Update series fields
+      tvSeries.title = title || tvSeries.title;
+      tvSeries.slug = slug || tvSeries.slug;
+      tvSeries.description = description || tvSeries.description;
+      tvSeries.releaseDate = releaseDate || tvSeries.releaseDate;
+      tvSeries.tmdbId = tmdbId || tvSeries.tmdbId;
+      tvSeries.seasonNumber = seasons ? Number(seasons) : tvSeries.seasonNumber;
+      tvSeries.thumbnail = thumbnailUrl;
+      tvSeries.poster = posterUrl;
+      tvSeries.actors = actorsData;
+      tvSeries.directors = directorsData;
+      tvSeries.writers = writersData;
+      tvSeries.imdbRating = imdbRating || tvSeries.imdbRating;
+      tvSeries.countries = countries || tvSeries.countries;
+      tvSeries.genres = genresData;
+      tvSeries.runtime = runtime || tvSeries.runtime;
+      tvSeries.freePaid = freePaid || tvSeries.freePaid;
+      tvSeries.trailerUrl = trailerUrl || tvSeries.trailerUrl;
+      tvSeries.videoQuality = videoQuality || tvSeries.videoQuality;
+      tvSeries.sendNewsletter = sendNewsletter || tvSeries.sendNewsletter;
+      tvSeries.sendPushNotification = sendPushNotification || tvSeries.sendPushNotification;
+      tvSeries.publish = publish || tvSeries.publish;
+      tvSeries.enableDownload = enableDownload || tvSeries.enableDownload;
+
+      await tvSeries.save();
+
+      res.status(200).json({ success: true, tvSeries });
+    } catch (error) {
+      console.error("Update Error: ", error)
+      res.status(400).json({ message: error.message });
     }
-    res.status(200).json(tvSeries);
-  } catch (error) {
-    res.status(400).json({ message: error.message });
-  }
-});
+  });
 
 // Delete a TV Series
 router.delete('/:id', async (req, res) => {
