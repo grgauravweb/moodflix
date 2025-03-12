@@ -337,7 +337,7 @@ router.put('/:id',
     }
 });
 
-// Update Tv Series API
+// Update Tv Series Episode API
 router.put(
   "/:seriesId/update-episode/:episodeId",
   upload.fields([
@@ -398,6 +398,35 @@ router.put(
     }
   }
 );
+
+// Delete a TV Series Episode Data
+router.delete('/:seriesId/episodes/:episodeId', async (req, res) => {
+  try {
+    const { seriesId, episodeId } = req.params;
+
+    // Find the TV series
+    const tvSeries = await TvSeries.findById(seriesId);
+    if (!tvSeries) {
+      return res.status(404).json({ error: 'TV Series not found' });
+    }
+
+    // Find the episode index
+    const episodeIndex = tvSeries.episodes.findIndex(episode => episode._id.toString() === episodeId);
+    if (episodeIndex === -1) {
+      return res.status(404).json({ error: 'Episode not found' });
+    }
+
+    // Remove the episode
+    const deletedEpisode = tvSeries.episodes.splice(episodeIndex, 1)[0];
+    await tvSeries.save();
+
+    res.status(200).json({ success: true, message: 'Episode deleted successfully', deletedEpisode });
+  } catch (error) {
+    console.error('Error deleting episode:', error);
+    res.status(500).json({ error: 'Failed to delete episode' });
+  }
+});
+
 
 // Delete a TV Series
 router.delete('/:id', async (req, res) => {
