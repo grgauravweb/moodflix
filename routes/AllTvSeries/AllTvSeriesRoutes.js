@@ -51,129 +51,130 @@ const uploadFileToSpaces = async (file, folder) => {
 //   }
 // });
 
-// Create a new movie
+// // Create a new movie
+// router.post(
+//   "/add",
+//   upload.fields([
+//     { name: "poster", maxCount: 1 },
+//     { name: "thumbnail", maxCount: 1 },
+//     { name: "episodes", maxCount: 50 },
+//     { name: "episodesThumbnails", maxCount: 50 }
+//   ]),
+//   async (req, res) => {
+//     try {
+//       const {
+//         title,
+//         description,
+//         releaseDate,
+//         tmdbId,
+//         slug,
+//         actors,
+//         directors,
+//         writers,
+//         imdbRating,
+//         countries,
+//         genres,
+//         seasons,
+//         runtime,
+//         freePaid,
+//         trailerUrl,
+//         videoQuality,
+//         sendNewsletter,
+//         sendPushNotification,
+//         publish,
+//         enableDownload,
+//         episodesMetadata
+//       } = req.body;
+//       console.log("REQ: ", req.body)
+//       console.log("Received episodes:", req.body.episodes);
+//       if (!title || !description) {
+//         return res.status(400).json({ error: "Title and description are required" });
+//       }
+//       const parsedEpisodes = JSON.parse(episodesMetadata);
+//       console.log("Parsed Episodes: ", parsedEpisodes);
+//       console.log("Parsed Episodes Count: ", parsedEpisodes.length);
+//       // Split string values into arrays
+//       const genresData = genres ? genres.split(",").map((id) => id.trim()) : [];
+//       const actorsData = actors ? actors.split(",").map((id) => id.trim()) : [];
+//       const directorsData = directors ? directors.split(",").map((id) => id.trim()) : [];
+//       const writersData = writers ? writers.split(",").map((id) => id.trim()) : [];
+
+//       // Upload poster and thumbnail to DigitalOcean Spaces
+//       const posterUrl = await uploadFileToSpaces(req.files.poster?.[0], "series/posters");
+//       const thumbnailUrl = await uploadFileToSpaces(req.files.thumbnail?.[0], "series/thumbnails");
+
+//       // 🆕 Handle Episodes Upload
+//       let episodesData = [];
+//       for (let i = 0; i < parsedEpisodes.length; i++) {
+//         const episode = parsedEpisodes[i];
+//         console.log("Processing Episode: ", episode);
+//         const videoFile = Array.isArray(req.files.episodes) ? req.files.episodes[i] : req.files.episodes;
+//         const thumbnailFile = Array.isArray(req.files.episodesThumbnails) ? req.files.episodesThumbnails[i] : req.files.episodesThumbnails;
+
+//         if (!videoFile || !thumbnailFile) {
+//           console.error(`Missing files for episode ${i + 1}`);
+//           continue;  // Skip if files are missing
+//         }
+
+//         const videoUrl = await uploadFileToSpaces(videoFile, "series/videos");
+//         const episodeThumbnailUrl = await uploadFileToSpaces(thumbnailFile, "series/episode-thumbnails");
+
+//         episodesData.push({
+//           ...episode,
+//           seasonNumber: episode.seasonNumber || seasons,
+//           video: videoUrl,
+//           thumbnail: episodeThumbnailUrl
+//         });
+//       }
+//       console.log("Final Episodes Data: ", episodesData);
+
+//       // Check if series already exists
+//       // let tvSeries = await TvSeries.findOne({ title });
+//       // if (tvSeries) {
+//       //   // Update series with new episodes
+//       //   tvSeries.episodes = [...tvSeries.episodes, ...episodesData];
+//       //   await tvSeries.save();
+//       // } else {
+//       // Create new series
+//       const tvSeries = new TvSeries({
+//         title,
+//         slug,
+//         description,
+//         releaseDate,
+//         tmdbId,
+//         seasonNumber: Number(seasons),
+//         thumbnail: thumbnailUrl,
+//         poster: posterUrl,
+//         actors: actorsData,
+//         directors: directorsData,
+//         writers: writersData,
+//         imdbRating,
+//         countries,
+//         genres: genresData,
+//         runtime,
+//         freePaid,
+//         trailerUrl,
+//         videoQuality,
+//         episodes: episodesData,
+//         sendNewsletter,
+//         sendPushNotification,
+//         publish,
+//         enableDownload,
+//       });
+//       await tvSeries.save();
+
+
+//       res.status(201).json({ success: true, tvSeries });
+//     } catch (error) {
+//       console.error("Upload error:", error);
+//       res.status(500).json({ error: "Failed to upload TV series" });
+//     }
+//   }
+// );
+
+// Create a Tv Series
 router.post(
   "/",
-  upload.fields([
-    { name: "poster", maxCount: 1 },
-    { name: "thumbnail", maxCount: 1 },
-    { name: "episodes", maxCount: 50 },
-    { name: "episodesThumbnails", maxCount: 50 }
-  ]),
-  async (req, res) => {
-    try {
-      const {
-        title,
-        description,
-        releaseDate,
-        tmdbId,
-        slug,
-        actors,
-        directors,
-        writers,
-        imdbRating,
-        countries,
-        genres,
-        seasons,
-        runtime,
-        freePaid,
-        trailerUrl,
-        videoQuality,
-        sendNewsletter,
-        sendPushNotification,
-        publish,
-        enableDownload,
-        episodesMetadata
-      } = req.body;
-      console.log("REQ: ", req.body)
-      console.log("Received episodes:", req.body.episodes);
-      if (!title || !description) {
-        return res.status(400).json({ error: "Title and description are required" });
-      }
-      const parsedEpisodes = JSON.parse(episodesMetadata);
-      console.log("Parsed Episodes: ", parsedEpisodes);
-      console.log("Parsed Episodes Count: ", parsedEpisodes.length);
-      // Split string values into arrays
-      const genresData = genres ? genres.split(",").map((id) => id.trim()) : [];
-      const actorsData = actors ? actors.split(",").map((id) => id.trim()) : [];
-      const directorsData = directors ? directors.split(",").map((id) => id.trim()) : [];
-      const writersData = writers ? writers.split(",").map((id) => id.trim()) : [];
-
-      // Upload poster and thumbnail to DigitalOcean Spaces
-      const posterUrl = await uploadFileToSpaces(req.files.poster?.[0], "series/posters");
-      const thumbnailUrl = await uploadFileToSpaces(req.files.thumbnail?.[0], "series/thumbnails");
-
-      // 🆕 Handle Episodes Upload
-      let episodesData = [];
-      for (let i = 0; i < parsedEpisodes.length; i++) {
-        const episode = parsedEpisodes[i];
-        console.log("Processing Episode: ", episode);
-        const videoFile = Array.isArray(req.files.episodes) ? req.files.episodes[i] : req.files.episodes;
-        const thumbnailFile = Array.isArray(req.files.episodesThumbnails) ? req.files.episodesThumbnails[i] : req.files.episodesThumbnails;
-
-        if (!videoFile || !thumbnailFile) {
-          console.error(`Missing files for episode ${i + 1}`);
-          continue;  // Skip if files are missing
-        }
-
-        const videoUrl = await uploadFileToSpaces(videoFile, "series/videos");
-        const episodeThumbnailUrl = await uploadFileToSpaces(thumbnailFile, "series/episode-thumbnails");
-
-        episodesData.push({
-          ...episode,
-          seasonNumber: episode.seasonNumber || seasons,
-          video: videoUrl,
-          thumbnail: episodeThumbnailUrl
-        });
-      }
-      console.log("Final Episodes Data: ", episodesData);
-
-      // Check if series already exists
-      // let tvSeries = await TvSeries.findOne({ title });
-      // if (tvSeries) {
-      //   // Update series with new episodes
-      //   tvSeries.episodes = [...tvSeries.episodes, ...episodesData];
-      //   await tvSeries.save();
-      // } else {
-      // Create new series
-      const tvSeries = new TvSeries({
-        title,
-        slug,
-        description,
-        releaseDate,
-        tmdbId,
-        seasonNumber: Number(seasons),
-        thumbnail: thumbnailUrl,
-        poster: posterUrl,
-        actors: actorsData,
-        directors: directorsData,
-        writers: writersData,
-        imdbRating,
-        countries,
-        genres: genresData,
-        runtime,
-        freePaid,
-        trailerUrl,
-        videoQuality,
-        episodes: episodesData,
-        sendNewsletter,
-        sendPushNotification,
-        publish,
-        enableDownload,
-      });
-      await tvSeries.save();
-
-
-      res.status(201).json({ success: true, tvSeries });
-    } catch (error) {
-      console.error("Upload error:", error);
-      res.status(500).json({ error: "Failed to upload TV series" });
-    }
-  }
-);
-
-router.post(
-  "/add",
   upload.fields([
     { name: "poster", maxCount: 1 },
     { name: "thumbnail", maxCount: 1 },
@@ -260,6 +261,7 @@ router.post(
   }
 );
 
+//  ✅ Add episodes for a specific TV series
 router.post(
   "/:seriesId/add-episode",
   upload.fields([
