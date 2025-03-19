@@ -15,6 +15,8 @@ const PaymentSettingSchema = new mongoose.Schema({
   exchangeRate: { type: Number, default: 1 },
   razorpayKeyId: { type: String, default: "" },
   razorpayKeySecret: { type: String, default: "" },
+  upiId: { type: String, default: "" },
+  qrCodeImage: { type: String, default: "" },
 });
 
 module.exports = mongoose.model("PaymentSetting", PaymentSettingSchema);

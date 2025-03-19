@@ -8,12 +8,15 @@ const packageSchema = new mongoose.Schema({
     required: true,
   },
   validity: {
-    type: String, // Ensure this is a String
+    type: Number, // Ensure this is a Number
     required: true,
   },
   price: {
     type: Number,
     required: true,
+  },
+  description: { 
+    type: String // Optional
   },
   status: {
     type: String,
