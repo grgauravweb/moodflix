@@ -13,6 +13,7 @@ const packageRoutes = require("./routes/Subscription/PackageRoutes")
 const paymentSettingsRoutes = require("./routes/Subscription/PaymentSetting")
 const SettingRoutes = require("./routes/Subscription/SettingRoutes")
 const TransactionLog = require("./routes/Subscription/TransactionLog")
+const Subscription = require("./routes/Subscription/SubscriptionsRoutes")
 const NotificatonSettings = require("./routes/Notification/NotificationRoutes")
 const LiveTVNotification = require("./routes/Notification/LiveTvRoutes")
 const systemSettingsRoutes = require("./routes/Setting/SystemSettingRoutes")
@@ -66,6 +67,7 @@ app.use('/api/packages', packageRoutes);
 app.use("/api/payment-settings", paymentSettingsRoutes);
 app.use("/api/settings", SettingRoutes);
 app.use("/api/transactions", TransactionLog);
+app.use("/api/subscription", Subscription);
 app.use("/api/push-notification-settings", NotificatonSettings);
 app.use("/api/notifications/latest", LiveTVNotification);
 app.use("/api/notifications", LiveTVNotification);
