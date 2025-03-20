@@ -116,7 +116,14 @@ router.get('/', async (req, res) => {
 // Get a movie by ID
 router.get('/:id', async (req, res) => {
   try {
-    const movie = await Movie.findById(req.params.id);
+    const movie = await Movie.findById(req.params.id)
+      .populate({path:'slug', select: "name"})
+      .populate({path: 'actors', select: "starName"})
+      .populate({path: 'directors', select: "starName"})
+      .populate({path: 'writers', select: "starName"})
+      .populate({path: 'genres', select: "name"})
+      .exec();
+
     if (!movie) {
       return res.status(404).json({ message: 'Movie not found' });
     }
