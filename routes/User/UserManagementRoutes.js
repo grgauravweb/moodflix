@@ -26,16 +26,53 @@ router.post('/login', async (req, res) => {
     if (!isPasswordValid) {
       return res.status(401).json({ message: 'Invalid email or password' });
     }
-
     // Generate JWT token
     const token = jwt.sign(
       { userId: user._id }, // Payload
-      process.env.JWT_SECRET || 'your-secret-key', // Replace with your secret key
+      process.env.JWT_SECRET, // Replace with your secret key
       { expiresIn: '1h' } // Token expiry
     );
-
+    
     // Respond with the token
     res.json({ message: 'Login successful', token });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+// Middleware to authenticate the user based on the JWT token
+const authenticateToken = (req, res, next) => {
+  // Get token from the Authorization header (Bearer token)
+  const token = req.header('Authorization')?.replace('Bearer ', '');
+  if (!token) {
+    return res.status(401).json({ message: 'Access denied. No token provided.' });
+  }
+
+  // Verify the token
+  jwt.verify(token, process.env.JWT_SECRET, async (err, decoded) => {
+    if (err) {
+      return res.status(403).json({ message: 'Invalid or expired token' });
+    }
+
+    // Attach the userId (from decoded token) to the request object for further use
+    req.userId = decoded.userId;
+    next();
+  });
+};
+
+// Route to get the user details using the JWT token
+router.get('/get-user', authenticateToken, async (req, res) => {
+  try {
+    // Find the user by the userId from the token
+    const user = await User.findById(req.userId).select('-password'); // Exclude password field
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Send user details (without password)
+    res.json({ message: 'User retrieved successfully', user });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Server error', error: error.message });
@@ -84,8 +121,6 @@ router.get('/', async (req, res) => {
     res.status(500).json({ message: 'Internal server error', error: err.message });
   }
 });
-
-
 
 // Edit user
 router.put('/:id', async (req, res) => {
