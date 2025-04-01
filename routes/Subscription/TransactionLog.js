@@ -43,14 +43,15 @@ router.post("/",
   async (req, res) => {
   try {
     const { user, package, paymentMethod, amount, transactionId, transactionInfo } = req.body;
-
+    console.log("req.body", req.body)
     const file = req.file; // Get the uploaded file from the request
+    // console.log("file", req.file)
     let screenshotUrlPath = null;
     if (file) {
       // Upload the file to DigitalOcean Spaces and get the URL
       screenshotUrlPath = await uploadFileToSpaces(file, "transactionProofs");
     }
-    
+    // console.log("screenshotUrlPath", screenshotUrlPath)
     // Check if all required fields are provided
     const newLog = new TransactionLog({
       user,
@@ -85,7 +86,7 @@ router.get("/", async (req, res) => {
 });
 
 // Get transactions for a specific user
-router.get("/user/:userId", async (req, res) => {
+router.get("/my-transactions/:userId", async (req, res) => {
   try {
     const { userId } = req.params
     const transactions = await TransactionLog.find({ user: userId }).populate("package");
