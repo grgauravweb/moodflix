@@ -89,7 +89,7 @@ router.get("/", async (req, res) => {
 router.get("/my-transactions/:userId", async (req, res) => {
   try {
     const { userId } = req.params
-    const transactions = await TransactionLog.find({ user: userId }).populate("package");
+    const transactions = await TransactionLog.find({ user: userId }).populate("package").sort({ paymentTime: -1 });
     res.status(200).json(transactions);
   } catch (error) {
     res.status(500).json({ message: "Server error", error: error.message });

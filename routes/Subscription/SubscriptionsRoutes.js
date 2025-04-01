@@ -53,4 +53,27 @@ router.put("/:id", async (req, res) => {
   }
 })
 
+router.get('/check-subscription/:userId', async (req, res) => {
+  const { userId } = req.params;
+
+  if (!userId) {
+      return res.status(400).json({ message: 'User ID is required' });
+  }
+
+  try {
+      const activeSubscription = await Subscription.findOne({
+          user: userId,
+          status: 'Active',
+      });
+
+      if (!activeSubscription) {
+          return res.status(403).json({ activeSubscription: false });
+      }
+
+      return res.status(200).json({ activeSubscription: true });
+  } catch (error) {
+      res.status(500).json({ message: error.message });
+  }
+});
+
 module.exports = router;

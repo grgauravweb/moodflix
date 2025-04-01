@@ -35,6 +35,7 @@ const subscribersRoutes = require("./routes/MainDashboard/subscribersRoutes")
 const tvChannelsRoute = require("./routes/AddTvChannel/AddTvChannelRoutes")
 const paymentQrRoutes = require("./routes/Qr/PaymentQrRoutes")
 
+require('./routes/cron/subscriptionChecker'); // Import the cron job to start it
 require('dotenv').config();
 
 const app = express();
