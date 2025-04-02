@@ -28,6 +28,7 @@ const TvSeriesSchema = new mongoose.Schema({
   title: { type: String, required: true },
   slug: [{ type: mongoose.Schema.Types.ObjectId, ref: "Genre" }], // Removed `unique: true`
   description: { type: String },
+  seasonNumber: { type: Number, required: true, default: 1 },
   actors: [{ type: mongoose.Schema.Types.ObjectId, ref: "Star" }],
   directors: [{ type: mongoose.Schema.Types.ObjectId, ref: "Star" }],
   writers: [{ type: mongoose.Schema.Types.ObjectId, ref: "Star" }],
