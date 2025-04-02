@@ -31,7 +31,7 @@ router.post('/login', async (req, res) => {
     fiveMonthsFromNow.setMonth(fiveMonthsFromNow.getMonth() + 5);
 
     const expiresInSeconds = Math.floor((fiveMonthsFromNow - new Date()) / 1000);
-    
+
     // Generate JWT token
     const token = jwt.sign(
       { userId: user._id }, // Payload
