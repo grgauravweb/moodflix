@@ -220,6 +220,7 @@ router.get("/:seriesId/episodes", async (req, res) => {
       page: Number(page),
       limit: Number(limit),
       episodes: paginatedEpisodes,
+      thumbnailUrl: series.thumbnail,
     });
 
   } catch (error) {
