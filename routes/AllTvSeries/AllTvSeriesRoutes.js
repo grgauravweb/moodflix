@@ -193,7 +193,7 @@ router.get("/:seriesId/episodes", async (req, res) => {
     const { season, freePaid, page = 1, limit = 10 } = req.query;
 
     // 🔍 Find the TV Series
-    const series = await TvSeries.findById(seriesId);
+    const series = await TvSeries.findById(seriesId).populate({path: 'actors', select : 'starName'}).populate({path: 'directors', select:'starName'}).populate({path: 'writers', select:'starName'}).populate({path: 'genres', select:'name'});
 
     if (!series) {
       return res.status(404).json({ success: false, message: "TV series not found" });
