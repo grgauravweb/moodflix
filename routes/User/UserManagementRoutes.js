@@ -26,13 +26,16 @@ router.post('/login', async (req, res) => {
     if (!isPasswordValid) {
       return res.status(401).json({ message: 'Invalid email or password' });
     }
+
+    const fiveMonthsFromNow = new Date();
+    fiveMonthsFromNow.setMonth(fiveMonthsFromNow.getMonth() + 5);
     // Generate JWT token
     const token = jwt.sign(
       { userId: user._id }, // Payload
       process.env.JWT_SECRET, // Replace with your secret key
-      { expiresIn: '5M' } // Token expiry
+      { expiresIn: fiveMonthsFromNow } // Token expiry
     );
-    
+
     // Respond with the token
     res.json({ message: 'Login successful', token });
   } catch (error) {
